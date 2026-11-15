@@ -198,18 +198,6 @@ button:disabled { opacity: .45; cursor: wait }
   padding: 9px 11px; font-size: 10.5px; word-break: break-all;
   color: var(--dim); max-height: 90px; overflow: hidden;
 }
-.simtag {
-  display: inline-block; margin-top: 8px; padding: 2px 8px;
-  font-size: 10px; letter-spacing: .06em; color: var(--a2);
-  border: 1px solid var(--a2);
-  animation: blink 3.2s ease-in-out infinite;
-}
-@keyframes blink { 0%, 100% { opacity: .55 } 50% { opacity: 1 } }
-
-.hist-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 11.5px }
-.hist-item:last-child { border-bottom: none }
-.hist-item .em { color: var(--txt); word-break: break-all }
-.hist-item .meta { color: var(--dim); font-size: 10.5px }
 button.tiny { margin: 0; padding: 4px 10px; font-size: 11px }
 .stat { font-size: 20px; font-weight: 600 }
 .stat-label { color: var(--dim); font-size: 10.5px; letter-spacing: .05em }
@@ -246,7 +234,6 @@ noscript {
 <header>
   <h1><b class="mark grad">pall<span>/</span>am</b> <span class="tag">activate</span></h1>
   <p>alight motion premium — magic link activation</p>
-  <div id="simtag" class="simtag hide">mode simulasi &middot; tanpa panggilan api asli</div>
 </header>
 
 <div class="steps">
@@ -299,14 +286,7 @@ noscript {
   </div>
 </div>
 
-<div class="panel hide" id="ph">
-  <h2>riwayat sesi</h2>
-  <p class="hint">sesi tersimpan lokal — bisa aktivasi ulang tanpa magic link baru.</p>
-  <div id="hlist"></div>
-  <div id="hm" class="msg" role="status" aria-live="polite"></div>
-</div>
-
-<footer><b class="grad">pall/am</b> <span id="ver"></span> &middot; unofficial &middot; reverse engineered &middot; use at your own risk</footer>
+<footer><b class="grad">pall/am</b> &middot; unofficial &middot; reverse engineered &middot; use at your own risk</footer>
 
 </div>
 
@@ -361,7 +341,6 @@ $('b3').onclick = async () => {
       $('r-tok').textContent = d.idToken
       window.__tok = d.idToken
       step(3)
-      loadSessions()
     } else say('m2', j.message || 'gagal', 0)
   } catch { say('m2', 'server gak nyambung', 0) }
   busy(b, false); b.textContent = 'verifikasi \u2192'
@@ -378,64 +357,6 @@ $('b5').onclick = () => { $('lk').value = ''; step(1) }
 $('em').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b1').click() } })
 $('lk').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b3').click() } })
 
-// ---- config & riwayat sesi ----
-const cfgView = { simulate: false }
-
-const renderSessions = list => {
-  const box = $('hlist'), panel = $('ph')
-  box.innerHTML = ''
-  if (!list || !list.length) { panel.classList.add('hide'); return }
-  panel.classList.remove('hide')
-  list.forEach(s => {
-    const row = document.createElement('div'); row.className = 'hist-item'
-    const left = document.createElement('div')
-    const em = document.createElement('div'); em.className = 'em'; em.textContent = s.email
-    const meta = document.createElement('div'); meta.className = 'meta'
-    const d = s.at ? new Date(s.at) : null
-    const when = d && !isNaN(d) ? d.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : '-'
-    meta.textContent = when + ' · ' + (s.status || '-') + (s.orderId ? ' · ' + s.orderId : '')
-    left.append(em, meta)
-    const b = document.createElement('button')
-    b.className = 'tiny sec'; b.textContent = 'aktivasi ulang'
-    b.onclick = async () => {
-      busy(b, true, '...')
-      try {
-        const r = await fetch('/api/sessions/reactivate', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ email: s.email })
-        })
-        const j = await r.json()
-        if (j.success) {
-          $('r-em').textContent = j.data.email
-          $('r-uid').textContent = j.data.uid || '-'
-          $('r-ord').textContent = j.data.orderId || '-'
-          $('r-tok').textContent = j.data.idToken
-          window.__tok = j.data.idToken
-          $('w-em').textContent = j.data.email
-          step(3)
-          say('hm', j.message, 1)
-          renderSessions(j.sessions)
-        } else say('hm', j.message || 'gagal', 0)
-      } catch { say('hm', 'server gak nyambung', 0) }
-      busy(b, false, 'aktivasi ulang')
-    }
-    row.append(left, b)
-    box.appendChild(row)
-  })
-}
-
-const loadSessions = () => fetch('/api/sessions')
-  .then(r => r.json())
-  .then(j => renderSessions(j.sessions || []))
-  .catch(() => {})
-
-fetch('/api/config').then(r => r.json()).then(j => {
-  cfgView.simulate = !!j.simulate
-  if (j.simulate) $('simtag').classList.remove('hide')
-  if (j.version) $('ver').textContent = 'v' + j.version
-}).catch(() => {})
-
-loadSessions()
 </script>
 </body>
 </html>
