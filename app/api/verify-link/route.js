@@ -2,6 +2,8 @@ const express = require('express')
 const auth = require('../../../lib/auth')
 const { friendlyFirebaseError } = require('../../../lib/errors')
 const { incrementStats, getStats } = require('../../../lib/stats')
+const cfg = require('../../../lib/config')
+const sessions = require('../../../lib/sessions')
 
 const router = express.Router()
 
@@ -22,7 +24,17 @@ router.post('/', async (req, res) => {
 
   const uid = v.uid || v.user?.localId || '-'
   const premium = await auth.pro(v.id)
-  const stats = premium.ok ? incrementStats() : getStats()
+  // simulasi jangan nambah counter asli
+  const stats = (premium.ok && !cfg.simulate) ? incrementStats() : getStats()
+
+  // simpan sesi biar bisa aktivasi ulang tanpa magic link baru
+  sessions.add({
+    email: em,
+    uid,
+    orderId: premium.ok ? premium.order : null,
+    status: premium.ok ? 'ACTIVE' : 'INACTIVE',
+    refreshToken: v.ref
+  })
 
   const now = new Date()
   const until = new Date()
@@ -30,7 +42,10 @@ router.post('/', async (req, res) => {
 
   return res.json({
     success: true,
-    message: premium.ok ? 'verifikasi berhasil, premium aktif.' : 'login berhasil, aktivasi premium gagal.',
+    message: premium.ok
+      ? (cfg.simulate ? 'verifikasi berhasil (simulasi), premium aktif.' : 'verifikasi berhasil, premium aktif.')
+      : 'login berhasil, aktivasi premium gagal.',
+    simulated: cfg.simulate,
     data: {
       stats: stats,
       uid: v.uid,
