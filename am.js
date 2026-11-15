@@ -1,5 +1,5 @@
 /*
-  am.js — alight motion tool
+  am.js — pall/am alight motion tool
   author: zenno
 */
 
@@ -120,7 +120,7 @@ async function auth(email, raw) {
 }
 
 async function pro(id) {
-  const o = 'neo-' + crypto.randomBytes(6).toString('hex')
+  const o = 'pall-' + crypto.randomBytes(6).toString('hex')
   const b = {
     data: {
       productId: 'am.full.sub.annual.19q4',
@@ -152,7 +152,10 @@ async function re(ref) {
 const put = (em, d) => { const a = db(); a[em] = { ...d, at: new Date().toISOString() }; save(a) }
 const get = em => db()[em] || null
 
+const banner = () => console.log('pall/am — alight motion tool\n')
+
 async function run() {
+  banner()
   console.log('[1] kirim link\n[2] verify + premium\n[3] premium (sesi)\n[4] sesi')
   const p = await inp(': ')
 
