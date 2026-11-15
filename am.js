@@ -1,5 +1,5 @@
 /*
-  am.js — alight motion tool
+  am.js — pall/am alight motion tool
   author: zenno
 */
 
@@ -120,7 +120,7 @@ async function auth(email, raw) {
 }
 
 async function pro(id) {
-  const o = 'neo-' + crypto.randomBytes(6).toString('hex')
+  const o = 'pall-' + crypto.randomBytes(6).toString('hex')
   const b = {
     data: {
       productId: 'am.full.sub.annual.19q4',
@@ -152,7 +152,26 @@ async function re(ref) {
 const put = (em, d) => { const a = db(); a[em] = { ...d, at: new Date().toISOString() }; save(a) }
 const get = em => db()[em] || null
 
+const art = [
+  "             _ _    __",
+  " _ __   __ _| | |  / /_ _ _ __ ___",
+  "| '_ \\ / _` | | | / / _` | '_ ` _ \\",
+  "| |_) | (_| | | |/ / (_| | | | | | |",
+  "| .__/ \\__,_|_|_/_/ \\__,_|_| |_| |_|",
+  "|_|"
+]
+
+const color = (code, s) => (process.stdout.isTTY && !process.env.NO_COLOR) ? `\x1b[${code}m${s}\x1b[0m` : s
+// gradien vertikal ala palet web: violet -> sky -> mint
+const shades = [141, 141, 111, 75, 79, 79]
+
+const banner = () => {
+  console.log(art.map((l, i) => color(`38;5;${shades[i]}`, l)).join('\n'))
+  console.log(color('2', '  unofficial alight motion premium activator\n'))
+}
+
 async function run() {
+  banner()
   console.log('[1] kirim link\n[2] verify + premium\n[3] premium (sesi)\n[4] sesi')
   const p = await inp(': ')
 

@@ -1,6 +1,15 @@
 <div align="center">
 
-# ⚡ AlightMotion Premium Activate
+<pre>
+             _ _    __
+ _ __   __ _| | |  / /_ _ _ __ ___
+| '_ \ / _` | | | / / _` | '_ ` _ \
+| |_) | (_| | | |/ / (_| | | | | | |
+| .__/ \__,_|_|_/_/ \__,_|_| |_| |_|
+|_|
+</pre>
+
+# pall/am — AlightMotion Premium Activate
 
 **unofficial alight motion premium activator**
 
@@ -12,13 +21,13 @@
 <img src="https://img.shields.io/badge/reverse--engineering-deep-red" alt="">
 <img src="https://img.shields.io/badge/node-18%2B-green" alt="">
 
-**team reverse — neo:** ansari • zenno
+**team reverse — pall/am:** ansari • zenno
 
-<a href="https://whatsapp.com/channel/0029Vb6hVYK8V0tkiz4bKs0N"><img src="https://img.shields.io/badge/Join%20Channel%20Neo-25D366?logo=whatsapp&logoColor=white" alt="Join Channel Neo"></a>
+<a href="https://whatsapp.com/channel/0029Vb6hVYK8V0tkiz4bKs0N"><img src="https://img.shields.io/badge/Join%20Channel%20pall%2Fam-25D366?logo=whatsapp&logoColor=white" alt="Join Channel pall/am"></a>
 
 </div>
 
-> ⚠️ **UNOFFICIAL — bukan alat resmi dari Alight Creative.**
+> ⚠️ **UNOFFICIAL — `pall/am` bukan alat resmi dari Alight Creative.**
 > Dibuat murni dari **reverse engineering mendalam** terhadap aplikasi Android Alight Motion: di-snip trafiknya, dibedah protokol Firebase Auth & endpoint `verifyPurchase`-nya, lalu di-reimplement jadi CLI + web. Kalau kelakuanmu kena ban, tanggung sendiri.
 
 ---

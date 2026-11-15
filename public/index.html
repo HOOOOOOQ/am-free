@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>am — activate</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#0a0a0b">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="pall/am — unofficial alight motion premium activator">
+<title>pall/am — activate</title>
 <style>
 :root {
   --bg: #0a0a0b;
@@ -11,11 +15,22 @@
   --line: #232326;
   --txt: #e8e8ea;
   --dim: #8a8a91;
-  --acc: #5ec269;
-  --acc-dim: #2c4a30;
-  --red: #e05252;
+
+  /* palet aksen — animasi mengalir di antara 3 warna ini */
+  --a1: #a78bfa;
+  --a2: #38bdf8;
+  --a3: #34d399;
+  --acc: #a78bfa;
+  --acc-dim: #2b2350;
+
+  --ok: #4ade80;
+  --err: #f87171;
+
+  --grad: linear-gradient(100deg, var(--a1), var(--a2), var(--a3), var(--a1));
+  --flow: 9s;
 }
 * { margin: 0; padding: 0; box-sizing: border-box }
+
 body {
   background: var(--bg);
   color: var(--txt);
@@ -26,26 +41,108 @@ body {
   display: flex;
   justify-content: center;
   padding: 48px 16px;
+  position: relative;
+  overflow-x: hidden;
 }
-.wrap { width: 100%; max-width: 460px }
 
-header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px }
-header h1 { font-size: 15px; font-weight: 600; letter-spacing: .02em }
-header h1 span { color: var(--acc) }
+/* pita gradien tipis di paling atas */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: var(--grad);
+  background-size: 300% 100%;
+  animation: flow var(--flow) linear infinite;
+  z-index: 2;
+}
+
+/* cahaya ambient yang bergerak pelan */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 42% at 22% 18%, rgba(167,139,250,.20), transparent 70%),
+    radial-gradient(34% 38% at 82% 26%, rgba(56,189,248,.16), transparent 70%),
+    radial-gradient(40% 40% at 55% 92%, rgba(52,211,153,.13), transparent 70%);
+  filter: blur(28px);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes flow {
+  to { background-position: 300% 0 }
+}
+@keyframes drift {
+  0%   { transform: translate3d(-2%, -1%, 0) scale(1) }
+  50%  { transform: translate3d(2%, 1.5%, 0) scale(1.06) }
+  100% { transform: translate3d(-1%, 2%, 0) scale(1.02) }
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(56,189,248,.10) }
+  50%      { box-shadow: 0 0 0 3px rgba(167,139,250,.18) }
+}
+
+.wrap { width: 100%; max-width: 460px; position: relative; z-index: 1 }
+
+/* teks bergradien animasi */
+.grad {
+  background: var(--grad);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: flow var(--flow) linear infinite;
+}
+
+header { border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 20px; position: relative }
+header::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px; height: 1px; width: 100%;
+  background: var(--grad);
+  background-size: 300% 100%;
+  animation: flow var(--flow) linear infinite;
+  opacity: .65;
+}
+header h1 { font-size: 15px; font-weight: 600; letter-spacing: .02em; display: flex; align-items: baseline; gap: 8px }
+header h1 .mark { font-weight: 600; letter-spacing: -.01em }
+header h1 .mark span { -webkit-text-fill-color: var(--dim); color: var(--dim) }
+header h1 .tag { color: var(--dim); font-weight: 400; font-size: 12px; letter-spacing: .04em }
+header h1 .tag::before { content: '— ' }
 header p { color: var(--dim); font-size: 12px; margin-top: 2px }
 
 .steps { display: flex; gap: 0; margin-bottom: 18px; font-size: 11px }
-.steps div { flex: 1; padding: 6px 0; border-bottom: 2px solid var(--line); color: var(--dim) }
-.steps div.on { border-color: var(--acc); color: var(--txt) }
-.steps div.done { border-color: var(--acc-dim); color: var(--acc) }
+.steps div { flex: 1; padding: 6px 0; border-bottom: 2px solid var(--line); color: var(--dim); position: relative }
+.steps div.on { color: var(--txt) }
+.steps div.done { color: var(--a3) }
+.steps div.on::after,
+.steps div.done::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px; height: 2px;
+  background: var(--grad);
+  background-size: 300% 100%;
+  animation: flow var(--flow) linear infinite;
+}
+.steps div.done::after { opacity: .45 }
 
 .panel {
   background: var(--panel);
   border: 1px solid var(--line);
   padding: 18px;
   margin-bottom: 14px;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.panel:focus-within {
+  border-color: #2f2f38;
+  box-shadow: 0 0 0 1px rgba(167,139,250,.10), 0 8px 30px -18px rgba(56,189,248,.55);
 }
 .panel h2 { font-size: 13px; font-weight: 600; margin-bottom: 4px }
+.panel h2.accent { background: var(--grad); background-size: 300% 100%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: flow var(--flow) linear infinite }
 .panel .hint { color: var(--dim); font-size: 11.5px; margin-bottom: 14px }
 label { display: block; color: var(--dim); font-size: 11px; margin-bottom: 5px; letter-spacing: .03em }
 input {
@@ -56,24 +153,41 @@ input {
   font: inherit;
   padding: 9px 11px;
   outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
-input:focus { border-color: var(--acc) }
+input::placeholder { color: #4c4c53 }
+input:focus {
+  border-color: var(--a2);
+  animation: pulse 2.8s ease-in-out infinite;
+}
 button {
-  background: var(--acc);
-  color: #06130a;
+  background: var(--grad);
+  background-size: 300% 100%;
+  animation: flow var(--flow) linear infinite;
+  color: #07070a;
   border: none;
   font: inherit;
   font-weight: 600;
   padding: 9px 18px;
   cursor: pointer;
   margin-top: 12px;
+  transition: filter .2s ease, transform .12s ease;
 }
-button.sec { background: transparent; color: var(--dim); border: 1px solid var(--line) }
+button:hover:not(:disabled) { filter: brightness(1.12) saturate(1.05) }
+button:active:not(:disabled) { transform: translateY(1px) }
+button.sec {
+  background: transparent;
+  animation: none;
+  color: var(--dim);
+  border: 1px solid var(--line);
+  transition: color .2s ease, border-color .2s ease;
+}
+button.sec:hover:not(:disabled) { color: var(--txt); border-color: var(--a2); filter: none }
 button:disabled { opacity: .45; cursor: wait }
 
 .msg { padding: 9px 12px; font-size: 12px; margin: 12px 0; display: none }
-.msg.err { display: block; background: #2a1414; border: 1px solid #4a2020; color: var(--red) }
-.msg.ok { display: block; background: #12201a; border: 1px solid var(--acc-dim); color: var(--acc) }
+.msg.err { display: block; background: #2a1414; border: 1px solid #4a2020; color: var(--err) }
+.msg.ok { display: block; background: #12201a; border: 1px solid #235038; color: var(--ok) }
 
 .kv { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 12px }
 .kv:last-child { border-bottom: none }
@@ -85,15 +199,40 @@ button:disabled { opacity: .45; cursor: wait }
   color: var(--dim); max-height: 90px; overflow: hidden;
 }
 button.tiny { margin: 0; padding: 4px 10px; font-size: 11px }
+.stat { font-size: 20px; font-weight: 600 }
+.stat-label { color: var(--dim); font-size: 10.5px; letter-spacing: .05em }
 footer { margin-top: 26px; color: #3f3f44; font-size: 10.5px; text-align: center }
+footer b { font-weight: 600 }
 .hide { display: none }
+
+:focus-visible { outline: 2px solid var(--a2); outline-offset: 2px }
+
+noscript {
+  display: block; padding: 12px; margin-bottom: 14px;
+  border: 1px solid #4a2020; background: #2a1414; color: var(--err); font-size: 12px;
+}
+
+@media (max-width: 420px) {
+  body { padding: 26px 12px }
+  .panel { padding: 15px }
+  header h1 { font-size: 14px }
+  .panel button:not(.tiny) { width: 100%; margin-left: 0 }
+  .panel button:not(.tiny) + button:not(.tiny) { margin-top: 8px }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; background-position: 0 0 !important }
+  body::after { transform: none !important }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
+<noscript>halaman ini butuh javascript buat kirim &amp; verifikasi link.</noscript>
+
 <header>
-  <h1>am <span>/</span> activate <span style="color:var(--dim);font-weight:400">by neo</span></h1>
+  <h1><b class="mark grad">pall<span>/</span>am</b> <span class="tag">activate</span></h1>
   <p>alight motion premium — magic link activation</p>
 </header>
 
@@ -105,36 +244,36 @@ footer { margin-top: 26px; color: #3f3f44; font-size: 10.5px; text-align: center
 
 <div class="panel" style="display:flex;justify-content:space-between;align-items:center">
   <div>
-    <div style="color:var(--dim);font-size:10.5px;letter-spacing:.05em">TOTAL AKTIVASI</div>
-    <div style="font-size:20px;font-weight:600;color:var(--acc)" id="st-total">-</div>
+    <div class="stat-label">TOTAL AKTIVASI</div>
+    <div class="stat grad" id="st-total">-</div>
   </div>
   <div style="text-align:right">
-    <div style="color:var(--dim);font-size:10.5px;letter-spacing:.05em">HARI INI</div>
-    <div style="font-size:20px;font-weight:600" id="st-today">-</div>
+    <div class="stat-label">HARI INI</div>
+    <div class="stat grad" id="st-today">-</div>
   </div>
 </div>
 
 <div class="panel" id="p1">
   <h2>masukkan email</h2>
   <p class="hint">link login dikirim ke email, tanpa password.</p>
-  <label>email</label>
-  <input id="em" type="email" placeholder="nama@email.com">
+  <label for="em">email</label>
+  <input id="em" type="email" placeholder="nama@email.com" autocomplete="email" inputmode="email" spellcheck="false">
   <button id="b1">kirim link &rarr;</button>
-  <div id="m1" class="msg"></div>
+  <div id="m1" class="msg" role="status" aria-live="polite"></div>
 </div>
 
 <div class="panel hide" id="p2">
   <h2>tempel link</h2>
   <p class="hint">link terkirim ke <span id="w-em" style="color:var(--txt)">-</span>. copy link dari email, paste di sini.</p>
-  <label>link verifikasi</label>
-  <input id="lk" type="text" placeholder="https://... atau oobCode">
-  <button id="b2">&larr; kembali</button>
+  <label for="lk">link verifikasi</label>
+  <input id="lk" type="text" placeholder="https://... atau oobCode" spellcheck="false" autocomplete="off">
+  <button class="sec" id="b2">&larr; kembali</button>
   <button id="b3">verifikasi &rarr;</button>
-  <div id="m2" class="msg"></div>
+  <div id="m2" class="msg" role="status" aria-live="polite"></div>
 </div>
 
 <div class="panel hide" id="p3">
-  <h2 style="color:var(--acc)">premium aktif</h2>
+  <h2 class="accent">premium aktif</h2>
   <p class="hint">detail akun di bawah, token bisa dicopy.</p>
   <div class="kv"><b>email</b><span id="r-em">-</span></div>
   <div class="kv"><b>uid</b><span id="r-uid">-</span></div>
@@ -147,7 +286,7 @@ footer { margin-top: 26px; color: #3f3f44; font-size: 10.5px; text-align: center
   </div>
 </div>
 
-<footer>unofficial &middot; reverse engineered &middot; use at your own risk</footer>
+<footer><b class="grad">pall/am</b> &middot; unofficial &middot; reverse engineered &middot; use at your own risk</footer>
 
 </div>
 
@@ -179,7 +318,7 @@ $('b1').onclick = async () => {
   try {
     const r = await fetch('/api/send-link', { method: 'POST', headers: {'content-type':'application/json'}, body: JSON.stringify({ email: em }) })
     const j = await r.json()
-    if (j.success) { say('m1', 'link terkirim, cek email', 1); $('w-em').textContent = em; setTimeout(() => step(2), 700) }
+    if (j.success) { say('m1', j.message || 'link terkirim, cek email', 1); $('w-em').textContent = em; setTimeout(() => step(2), 700) }
     else say('m1', j.message || 'gagal', 0)
   } catch { say('m1', 'server gak nyambung', 0) }
   busy(b, false); b.textContent = 'kirim link \u2192'
@@ -207,8 +346,17 @@ $('b3').onclick = async () => {
   busy(b, false); b.textContent = 'verifikasi \u2192'
 }
 
-$('b4').onclick = () => { navigator.clipboard.writeText(window.__tok || ''); $('b4').textContent = 'copied' }
+$('b4').onclick = () => {
+  navigator.clipboard.writeText(window.__tok || '')
+  const b = $('b4'); b.textContent = 'copied'
+  setTimeout(() => { b.textContent = 'copy token' }, 1600)
+}
 $('b5').onclick = () => { $('lk').value = ''; step(1) }
+
+// enter = lanjut, biar nggak perlu klik
+$('em').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b1').click() } })
+$('lk').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b3').click() } })
+
 </script>
 </body>
 </html>
