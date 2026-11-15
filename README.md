@@ -15,10 +15,9 @@
 
 *reverse engineered — cli & web, no ads, no tracking*
 
-**live:** [am.neonode.my.id](https://am.neonode.my.id)
-
+<img src="https://img.shields.io/badge/version-1.0.0-a78bfa" alt="">
+<img src="https://img.shields.io/badge/tests-12%20passed-34d399" alt="">
 <img src="https://img.shields.io/badge/status-unofficial-orange" alt="">
-<img src="https://img.shields.io/badge/reverse--engineering-deep-red" alt="">
 <img src="https://img.shields.io/badge/node-18%2B-green" alt="">
 
 **team reverse — pall/am:** ansari • zenno
@@ -32,18 +31,29 @@
 
 ---
 
-## apa yang bisa dilakuin
+## fitur
 
-- **magic link login** — masuk pake email doang, tanpa password, tanpa akun google
-- **premium aktif otomatis** — langsung nempel ke akun setelah verifikasi
-- **auto refresh token** — aktivasi ulang kapan aja dari sesi tersimpan
-- **dual mode** — CLI buat yang mager, web UI buat yang mau tampilan
-- **stealth headers** — nyamar 100% sebagai app android asli (`x-android-package` + `x-android-cert`)
-- **auto retry** — request keluar pakai timeout + retry (default 15s / 2x) biar nggak mati gara-gara socket disconnect
-- **riwayat sesi** — sesi tersimpan lokal, bisa **aktivasi ulang** tanpa kirim magic link baru
-- **mode simulasi** — semua panggilan firebase & `verifyPurchase` di-mock buat QA UI/CLI tanpa nyentuh API asli
+| | |
+|---|---|
+| **magic link login** | masuk pake email doang, tanpa password, tanpa akun google |
+| **premium aktif otomatis** | langsung nempel ke akun setelah verifikasi |
+| **riwayat sesi** | sesi tersimpan lokal, bisa **aktivasi ulang** tanpa kirim magic link baru |
+| **dual mode** | CLI buat yang mager, web UI buat yang mau tampilan |
+| **mode simulasi** | firebase & `verifyPurchase` di-mock — QA UI/CLI tanpa nyentuh API asli |
+| **auto retry** | timeout 15s + retry 2x buat error jaringan / 5xx |
+| **stealth headers** | nyamar sebagai app android asli (`x-android-package` + `x-android-cert`) |
+| **rate limit** | 30 request POST / IP / menit (bisa diatur) |
+| **siap serverless** | `app.js` dipakai bareng lokal & function vercel |
 
-## cara pakai
+## quickstart
+
+```bash
+npm install
+npm start                 # web  → http://localhost:3300
+node am.js                # cli
+npm run sim               # web mode simulasi (tanpa panggilan API asli)
+npm test                  # 12 test
+```
 
 ### cli
 ```
@@ -57,30 +67,11 @@ node am.js
 | `4` | lihat sesi tersimpan |
 
 ### web
-```bash
-npm install
-node server.js
-```
-buka `http://localhost:3300` — ikuti 3 langkah di layar.
-
----
-
-## palet
-
-aksen `pall/am` pakai gradien yang **mengalir** (animasi `flow`, 300% background-size):
-
-| token | warna | nama |
-|---|---|---|
-| `--a1` | `#a78bfa` | violet |
-| `--a2` | `#38bdf8` | sky |
-| `--a3` | `#34d399` | mint |
-
-dipakai di wordmark, tombol, underline step aktif, angka statistik, pita atas, dan ambient glow yang bergerak pelan.
-semua animasi otomatis mati kalau user pakai `prefers-reduced-motion: reduce`.
+3 langkah di layar: **email → link → premium aktif**. Di panel bawah ada **riwayat sesi** dengan tombol aktivasi ulang. Enter di kolom input = lanjut ke langkah berikutnya.
 
 ## config
 
-semua opsional, ada default-nya. copy `.env.example` → `.env` kalau mau diubah.
+semua opsional dan punya default. copy `.env.example` → `.env` kalau mau diubah (dibaca tanpa dependency tambahan, env asli tetap menang).
 
 | env | default | fungsi |
 |---|---|---|
@@ -88,19 +79,43 @@ semua opsional, ada default-nya. copy `.env.example` → `.env` kalau mau diubah
 | `PALL_AM_SIMULATE` | `0` | `1` = mode simulasi, `verifyPurchase` di-mock, counter stats tidak nambah |
 | `PALL_AM_TIMEOUT` | `15000` | timeout request keluar (ms) |
 | `PALL_AM_RETRIES` | `2` | jumlah retry untuk error jaringan / 5xx |
+| `PALL_AM_RATE_LIMIT` | `30` | batas POST / IP / menit (`0` = matikan) |
+| `PALL_AM_DATA_DIR` | `./data` (`/tmp` di vercel) | lokasi file `stats.json` & `sessions.json` |
 | `PORT` | `3300` | port server lokal |
 
-### endpoint
+## api
 
 | method | path | fungsi |
 |---|---|---|
-| `GET` | `/api/config` | domain, saran email, status simulasi, storage |
-| `GET` | `/api/status` | health check |
+| `GET` | `/healthz` | health check ringkas |
+| `GET` | `/api/config` | brand, versi, domain, mode simulasi, storage |
+| `GET` | `/api/status` | status service |
 | `GET` | `/api/stats` | total & hari ini |
 | `POST` | `/api/send-link` | kirim magic link (`{ email }`) |
 | `POST` | `/api/verify-link` | verifikasi + premium (`{ email, magicLink }`) |
-| `GET` | `/api/sessions` | riwayat sesi (tanpa refresh token) |
+| `GET` | `/api/sessions` | riwayat sesi (refresh token tidak pernah dikirim) |
 | `POST` | `/api/sessions/reactivate` | aktivasi ulang (`{ email }`) |
+
+semua respons pakai bentuk `{ success, message, data? }`. error 400/404/429/500 selalu balas JSON.
+
+## struktur
+
+```
+am.js                 cli (menu 1–4)
+server.js             listener lokal
+app.js                express app — dipakai lokal & serverless
+api/index.js          entry point function vercel
+lib/auth.js           firebase auth + verifyPurchase, retry/timeout, simulasi
+lib/config.js         env + .env loader, path data
+lib/sessions.js       riwayat sesi (maks 20, refresh token privat)
+lib/stats.js          counter aktivasi
+lib/ratelimit.js      rate limit in-memory per IP
+lib/errors.js         pesan error firebase → bahasa manusia
+app/api/*/route.js    endpoint per fitur
+public/index.html     web UI (single file, tanpa build step)
+public/favicon.svg    ikon `p/a`
+test/api.test.js      test end-to-end (node --test)
+```
 
 ## deploy
 
@@ -109,23 +124,33 @@ semua opsional, ada default-nya. copy `.env.example` → `.env` kalau mau diubah
 vercel          # preview
 vercel --prod   # production
 ```
-atau import repo ini lewat dashboard vercel — nggak perlu setting apa-apa, semua sudah dibaca dari `vercel.json`.
+atau import repo lewat dashboard — semua konfigurasi dibaca dari `vercel.json` (`/api/*` → function, static dari `public/`).
 
-| file | peran |
+isi env di dashboard: `EMAIL_DOMAIN` (opsional), `PALL_AM_SIMULATE=0`.
+
+> di vercel filesystem read-only, jadi data disimpan ke `/tmp` → counter & riwayat reset tiap cold start.
+> mau permanen? arahkan `PALL_AM_DATA_DIR` ke volume, atau ganti storage ke vercel kv / upstash redis.
+
+### docker / vps
+```bash
+npm install --omit=dev
+PALL_AM_DATA_DIR=/var/lib/pall-am PORT=3300 node server.js
+```
+
+## troubleshooting
+
+| gejala | solusi |
 |---|---|
-| `app.js` | express app (dipakai lokal **dan** serverless) |
-| `server.js` | listener lokal (`node server.js`) |
-| `api/index.js` | entry point serverless vercel |
-| `vercel.json` | rewrite `/api/*` → function, static dari `public/` |
-
-env yang perlu diisi di dashboard vercel: `EMAIL_DOMAIN` (opsional) dan `PALL_AM_SIMULATE=0` (biar nggak simulasi di production).
-
-> catatan: di vercel filesystem read-only, jadi `lib/stats.js` nyimpen counter ke `/tmp`.
-> artinya angka "total aktivasi" bisa reset tiap cold start. mau permanen? tinggal ganti storage-nya ke vercel kv / upstash redis.
+| `Client network socket disconnected` | jaringan blokir host google/firebase — coba dari host lain, atau naikkan `PALL_AM_TIMEOUT` |
+| `429 terlalu banyak request` | tunggu 1 menit atau set `PALL_AM_RATE_LIMIT` lebih besar |
+| counter/riwayat hilang setelah deploy | normal di serverless (`/tmp`), set `PALL_AM_DATA_DIR` ke volume permanen |
+| `code gak ada` | link yang ditempel bukan dari email magic link, atau sudah dipakai |
 
 ---
 
 <div align="center">
+
+<sub>MIT license — lihat <code>LICENSE</code></sub>
 
 **disclaimer** — ini riset independen. tidak berafiliasi dengan alight creative / google.
 semua merek dagang milik pemiliknya masing-masing. gunakan atas risiko sendiri.

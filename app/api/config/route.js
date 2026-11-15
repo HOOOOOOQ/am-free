@@ -9,11 +9,13 @@ router.get('/', (req, res) => {
   res.json({
     success: true,
     brand: cfg.brand,
+    version: cfg.version,
     emailDomain: cfg.emailDomain,
     suggestedEmail: cfg.suggestedEmail,
     simulate: cfg.simulate,
     timeout: cfg.timeout,
     retries: cfg.retries,
+    rateLimit: cfg.rateLimit,
     storage: { stats: storage, sessions: sessions.storage }
   })
 })

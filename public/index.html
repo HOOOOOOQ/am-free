@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta name="theme-color" content="#0a0a0b">
+<meta name="color-scheme" content="dark">
 <meta name="description" content="pall/am — unofficial alight motion premium activator">
 <title>pall/am — activate</title>
 <style>
@@ -216,6 +217,21 @@ footer { margin-top: 26px; color: #3f3f44; font-size: 10.5px; text-align: center
 footer b { font-weight: 600 }
 .hide { display: none }
 
+:focus-visible { outline: 2px solid var(--a2); outline-offset: 2px }
+
+noscript {
+  display: block; padding: 12px; margin-bottom: 14px;
+  border: 1px solid #4a2020; background: #2a1414; color: var(--err); font-size: 12px;
+}
+
+@media (max-width: 420px) {
+  body { padding: 26px 12px }
+  .panel { padding: 15px }
+  header h1 { font-size: 14px }
+  .panel button:not(.tiny) { width: 100%; margin-left: 0 }
+  .panel button:not(.tiny) + button:not(.tiny) { margin-top: 8px }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; background-position: 0 0 !important }
   body::after { transform: none !important }
@@ -224,6 +240,8 @@ footer b { font-weight: 600 }
 </head>
 <body>
 <div class="wrap">
+
+<noscript>halaman ini butuh javascript buat kirim &amp; verifikasi link.</noscript>
 
 <header>
   <h1><b class="mark grad">pall<span>/</span>am</b> <span class="tag">activate</span></h1>
@@ -252,19 +270,19 @@ footer b { font-weight: 600 }
   <h2>masukkan email</h2>
   <p class="hint">link login dikirim ke email, tanpa password.<span id="domhint" style="color:var(--a2)"></span></p>
   <label for="em">email</label>
-  <input id="em" type="email" placeholder="nama@email.com" autocomplete="email">
+  <input id="em" type="email" placeholder="nama@email.com" autocomplete="email" inputmode="email" spellcheck="false">
   <button id="b1">kirim link &rarr;</button>
-  <div id="m1" class="msg"></div>
+  <div id="m1" class="msg" role="status" aria-live="polite"></div>
 </div>
 
 <div class="panel hide" id="p2">
   <h2>tempel link</h2>
   <p class="hint">link terkirim ke <span id="w-em" style="color:var(--txt)">-</span>. copy link dari email, paste di sini.</p>
   <label for="lk">link verifikasi</label>
-  <input id="lk" type="text" placeholder="https://... atau oobCode">
+  <input id="lk" type="text" placeholder="https://... atau oobCode" spellcheck="false" autocomplete="off">
   <button class="sec" id="b2">&larr; kembali</button>
   <button id="b3">verifikasi &rarr;</button>
-  <div id="m2" class="msg"></div>
+  <div id="m2" class="msg" role="status" aria-live="polite"></div>
 </div>
 
 <div class="panel hide" id="p3">
@@ -285,10 +303,10 @@ footer b { font-weight: 600 }
   <h2>riwayat sesi</h2>
   <p class="hint">sesi tersimpan lokal — bisa aktivasi ulang tanpa magic link baru.</p>
   <div id="hlist"></div>
-  <div id="hm" class="msg"></div>
+  <div id="hm" class="msg" role="status" aria-live="polite"></div>
 </div>
 
-<footer><b class="grad">pall/am</b> &middot; unofficial &middot; reverse engineered &middot; use at your own risk</footer>
+<footer><b class="grad">pall/am</b> <span id="ver"></span> &middot; unofficial &middot; reverse engineered &middot; use at your own risk</footer>
 
 </div>
 
@@ -349,8 +367,16 @@ $('b3').onclick = async () => {
   busy(b, false); b.textContent = 'verifikasi \u2192'
 }
 
-$('b4').onclick = () => { navigator.clipboard.writeText(window.__tok || ''); $('b4').textContent = 'copied' }
+$('b4').onclick = () => {
+  navigator.clipboard.writeText(window.__tok || '')
+  const b = $('b4'); b.textContent = 'copied'
+  setTimeout(() => { b.textContent = 'copy token' }, 1600)
+}
 $('b5').onclick = () => { $('lk').value = ''; step(1) }
+
+// enter = lanjut, biar nggak perlu klik
+$('em').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b1').click() } })
+$('lk').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b3').click() } })
 
 // ---- config & riwayat sesi ----
 const cfgView = { simulate: false, suggestedEmail: 'am@sipall.my.id', emailDomain: '' }
@@ -410,6 +436,7 @@ fetch('/api/config').then(r => r.json()).then(j => {
   if (j.simulate) $('simtag').classList.remove('hide')
   $('em').placeholder = cfgView.suggestedEmail
   if (cfgView.emailDomain) $('domhint').textContent = ' domain: ' + cfgView.emailDomain
+  if (j.version) $('ver').textContent = 'v' + j.version
 }).catch(() => {})
 
 loadSessions()
