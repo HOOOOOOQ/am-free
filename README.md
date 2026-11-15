@@ -1,6 +1,15 @@
 <div align="center">
 
-# ⚡ pall/am — AlightMotion Premium Activate
+<pre>
+             _ _    __
+ _ __   __ _| | |  / /_ _ _ __ ___
+| '_ \ / _` | | | / / _` | '_ ` _ \
+| |_) | (_| | | |/ / (_| | | | | | |
+| .__/ \__,_|_|_/_/ \__,_|_| |_| |_|
+|_|
+</pre>
+
+# pall/am — AlightMotion Premium Activate
 
 **unofficial alight motion premium activator**
 
@@ -50,6 +59,40 @@ npm install
 node server.js
 ```
 buka `http://localhost:3300` — ikuti 3 langkah di layar.
+
+---
+
+## palet
+
+aksen `pall/am` pakai gradien yang **mengalir** (animasi `flow`, 300%% background-size):
+
+| token | warna | nama |
+|---|---|---|
+| `--a1` | `#a78bfa` | violet |
+| `--a2` | `#38bdf8` | sky |
+| `--a3` | `#34d399` | mint |
+
+dipakai di wordmark, tombol, underline step aktif, angka statistik, pita atas, dan ambient glow yang bergerak pelan.
+semua animasi otomatis mati kalau user pakai `prefers-reduced-motion: reduce`.
+
+## deploy
+
+### vercel
+```bash
+vercel          # preview
+vercel --prod   # production
+```
+atau import repo ini lewat dashboard vercel — nggak perlu setting apa-apa, semua sudah dibaca dari `vercel.json`.
+
+| file | peran |
+|---|---|
+| `app.js` | express app (dipakai lokal **dan** serverless) |
+| `server.js` | listener lokal (`node server.js`) |
+| `api/index.js` | entry point serverless vercel |
+| `vercel.json` | rewrite `/api/*` → function, static dari `public/` |
+
+> catatan: di vercel filesystem read-only, jadi `lib/stats.js` nyimpen counter ke `/tmp`.
+> artinya angka "total aktivasi" bisa reset tiap cold start. mau permanen? tinggal ganti storage-nya ke vercel kv / upstash redis.
 
 ---
 
