@@ -69,8 +69,6 @@ test('GET /api/config balikin domain & mode simulasi', async () => {
   const { status, json } = await call('GET', '/api/config')
   assert.equal(status, 200)
   assert.equal(json.brand, 'pall/am')
-  assert.equal(json.emailDomain, 'sipall.my.id')
-  assert.equal(json.suggestedEmail, 'am@sipall.my.id')
   assert.equal(json.simulate, true)
 })
 
@@ -93,7 +91,7 @@ test('endpoint api yang tidak ada balas json 404', async () => {
 })
 
 test('alur simulasi: kirim link → verifikasi → premium aktif', async () => {
-  const email = 'produk@sipall.my.id'
+  const email = 'produk@example.com'
 
   const sent = await call('POST', '/api/send-link', { email })
   assert.equal(sent.status, 200)
@@ -112,20 +110,20 @@ test('alur simulasi: kirim link → verifikasi → premium aktif', async () => {
 })
 
 test('aktifkan ulang pakai sesi tersimpan', async () => {
-  const { status, json } = await call('POST', '/api/sessions/reactivate', { email: 'produk@sipall.my.id' })
+  const { status, json } = await call('POST', '/api/sessions/reactivate', { email: 'produk@example.com' })
   assert.equal(status, 200)
   assert.equal(json.data.status, 'ACTIVE')
   assert.match(json.data.idToken, /^sim\./)
 })
 
 test('sesi yang tidak ada → 404', async () => {
-  const { status } = await call('POST', '/api/sessions/reactivate', { email: 'nobody@sipall.my.id' })
+  const { status } = await call('POST', '/api/sessions/reactivate', { email: 'nobody@example.com' })
   assert.equal(status, 404)
 })
 
 test('simulasi tidak menambah counter stats', async () => {
   const before = await call('GET', '/api/stats')
-  await call('POST', '/api/verify-link', { email: 'dua@sipall.my.id', magicLink: 'sim' })
+  await call('POST', '/api/verify-link', { email: 'dua@example.com', magicLink: 'sim' })
   const after = await call('GET', '/api/stats')
   assert.equal(after.json.total, before.json.total)
 })
@@ -133,7 +131,7 @@ test('simulasi tidak menambah counter stats', async () => {
 test('rate limit POST per IP jalan', async () => {
   let limited = null
   for (let i = 0; i < 8; i++) {
-    const r = await call('POST', '/api/send-link', { email: 'spam@sipall.my.id' })
+    const r = await call('POST', '/api/send-link', { email: 'spam@example.com' })
     if (r.status === 429) { limited = r; break }
   }
   assert.ok(limited, 'harusnya kena 429 setelah limit')

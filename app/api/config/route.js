@@ -10,8 +10,6 @@ router.get('/', (req, res) => {
     success: true,
     brand: cfg.brand,
     version: cfg.version,
-    emailDomain: cfg.emailDomain,
-    suggestedEmail: cfg.suggestedEmail,
     simulate: cfg.simulate,
     timeout: cfg.timeout,
     retries: cfg.retries,

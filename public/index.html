@@ -268,7 +268,7 @@ noscript {
 
 <div class="panel" id="p1">
   <h2>masukkan email</h2>
-  <p class="hint">link login dikirim ke email, tanpa password.<span id="domhint" style="color:var(--a2)"></span></p>
+  <p class="hint">link login dikirim ke email, tanpa password.</p>
   <label for="em">email</label>
   <input id="em" type="email" placeholder="nama@email.com" autocomplete="email" inputmode="email" spellcheck="false">
   <button id="b1">kirim link &rarr;</button>
@@ -379,7 +379,7 @@ $('em').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDef
 $('lk').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('b3').click() } })
 
 // ---- config & riwayat sesi ----
-const cfgView = { simulate: false, suggestedEmail: 'am@sipall.my.id', emailDomain: '' }
+const cfgView = { simulate: false }
 
 const renderSessions = list => {
   const box = $('hlist'), panel = $('ph')
@@ -431,11 +431,7 @@ const loadSessions = () => fetch('/api/sessions')
 
 fetch('/api/config').then(r => r.json()).then(j => {
   cfgView.simulate = !!j.simulate
-  cfgView.suggestedEmail = j.suggestedEmail || cfgView.suggestedEmail
-  cfgView.emailDomain = j.emailDomain || ''
   if (j.simulate) $('simtag').classList.remove('hide')
-  $('em').placeholder = cfgView.suggestedEmail
-  if (cfgView.emailDomain) $('domhint').textContent = ' domain: ' + cfgView.emailDomain
   if (j.version) $('ver').textContent = 'v' + j.version
 }).catch(() => {})
 

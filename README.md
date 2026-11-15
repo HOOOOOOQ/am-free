@@ -75,7 +75,6 @@ semua opsional dan punya default. copy `.env.example` → `.env` kalau mau diuba
 
 | env | default | fungsi |
 |---|---|---|
-| `EMAIL_DOMAIN` | `sipall.my.id` | domain yang disarankan di form (`am@sipall.my.id`). **tidak** memblokir domain lain |
 | `PALL_AM_SIMULATE` | `0` | `1` = mode simulasi, `verifyPurchase` di-mock, counter stats tidak nambah |
 | `PALL_AM_TIMEOUT` | `15000` | timeout request keluar (ms) |
 | `PALL_AM_RETRIES` | `2` | jumlah retry untuk error jaringan / 5xx |
@@ -88,7 +87,7 @@ semua opsional dan punya default. copy `.env.example` → `.env` kalau mau diuba
 | method | path | fungsi |
 |---|---|---|
 | `GET` | `/healthz` | health check ringkas |
-| `GET` | `/api/config` | brand, versi, domain, mode simulasi, storage |
+| `GET` | `/api/config` | brand, versi, mode simulasi, storage |
 | `GET` | `/api/status` | status service |
 | `GET` | `/api/stats` | total & hari ini |
 | `POST` | `/api/send-link` | kirim magic link (`{ email }`) |
@@ -126,7 +125,7 @@ vercel --prod   # production
 ```
 atau import repo lewat dashboard — semua konfigurasi dibaca dari `vercel.json` (`/api/*` → function, static dari `public/`).
 
-isi env di dashboard: `EMAIL_DOMAIN` (opsional), `PALL_AM_SIMULATE=0`.
+isi env di dashboard: `PALL_AM_SIMULATE=0` (biar production nggak simulasi).
 
 > di vercel filesystem read-only, jadi data disimpan ke `/tmp` → counter & riwayat reset tiap cold start.
 > mau permanen? arahkan `PALL_AM_DATA_DIR` ke volume, atau ganti storage ke vercel kv / upstash redis.
